@@ -2,8 +2,6 @@
 
 # Source: https://learn.microsoft.com/en-us/sql/linux/sample-unattended-install-ubuntu?view=sql-server-ver16
 
-# Use the following variables to control your install:
-
 # Password for the SA user (required)
 MSSQL_SA_PASSWORD="${mssql_sa_password}"
 

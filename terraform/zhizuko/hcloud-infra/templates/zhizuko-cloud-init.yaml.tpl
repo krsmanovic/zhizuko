@@ -51,12 +51,6 @@ runcmd:
   - dos2unix /tmp/mssql-install.sh # make sure we are not using CR LF (Windows) control characters
   - chmod +x /tmp/mssql-install.sh
   - /tmp/mssql-install.sh
-  # - wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  # - add-apt-repository -y "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2022.list)"
-  # - apt update -y
-  # - apt install -y mssql-server
-  # - systemctl start mssql-server.service
-  # - systemctl enable mssql-server.service
   # Umbraco unattended install
   - dotnet new install Umbraco.Templates
   - dotnet new umbraco -n zhizuko --friendly-name "${umbraco_friendly_name}" --email "${umbraco_email}" --password "${umbraco_password}" --connection-string "Server=localhost;Database=${umbraco_db_name};Integrated Security=true" --version 10.0.0

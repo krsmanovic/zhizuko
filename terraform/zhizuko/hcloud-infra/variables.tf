@@ -37,7 +37,7 @@ variable "server_type" {
 
   validation {
     condition     = contains(["cx11", "cpx11", "cx21", "cpx21", "cx31", "cpx31", "cx41", "cpx41", "cx51", "cpx51"], var.server_type)
-    error_message = "Valid values for variable \"server_type are\": cx11, cpx11, cx21, cpx21, cx31, cpx31, cx41, cpx41, cx51, cpx51."
+    error_message = "Valid values for variable \"server_type\" are: cx11, cpx11, cx21, cpx21, cx31, cpx31, cx41, cpx41, cx51, cpx51."
   }
 }
 
