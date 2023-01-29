@@ -1,14 +1,3 @@
-# Not using random_password resource for debugging purposes
-resource "random_string" "umbraco_password" {
-  length  = 16
-  special = true
-}
-
-resource "random_string" "mssql_sa_password" {
-  length  = 16
-  special = true
-}
-
 module "zhizuko_network" {
   source               = "../../modules/hcloud-network"
   private_network_name = var.server_name
