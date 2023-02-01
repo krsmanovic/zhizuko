@@ -91,3 +91,9 @@ variable "enable_public_ipv6" {
   description = "Enable or disable public IPv6 address"
   default     = false
 }
+
+variable "firewall_ids" {
+  type        = list(string)
+  description = "List of firewall IDs to attach to server"
+  default     = []
+}

@@ -3,6 +3,12 @@ variable "application_name" {
   description = "Resource prefixed added to all resources"
 }
 
+variable "application_fqdn" {
+  type        = string
+  description = "FQDN for the application"
+}
+
+
 variable "hcloud_token" {
   type      = string
   default   = ""
@@ -62,12 +68,18 @@ variable "app_specific_labels" {
 variable "umbraco_friendly_name" {
   type        = string
   description = "Umbraco user name written in friendly format, e.g., \"A.N. Other\""
-  default     = "A.N. Other"
+  default     = "C.K."
 }
 
 variable "umbraco_email" {
   type        = string
   description = "Umbraco user email address"
-  default     = "AN@Other.com"
+  default     = "contact@krsmanovic.me"
+}
+
+variable "cert_contact_email" {
+  type        = string
+  description = "Umbraco user email address"
+  default     = "contact@krsmanovic.me"
 }
 

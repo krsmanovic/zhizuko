@@ -8,7 +8,7 @@ MSSQL_SA_PASSWORD="${mssql_sa_password}"
 # Product ID of the version of SQL server you're installing
 # Must be evaluation, developer, express, web, standard, enterprise, or your 25 digit product key
 # Defaults to developer
-MSSQL_PID="developer"
+MSSQL_PID="express"
 
 # Install SQL Server Agent (recommended)
 SQL_INSTALL_AGENT="y"

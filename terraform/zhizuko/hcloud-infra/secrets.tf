@@ -7,3 +7,8 @@ resource "random_password" "mssql_sa_password" {
   length  = 20
   special = true
 }
+
+resource "random_password" "zhizuko_user_password" {
+  length  = 20
+  special = true
+}

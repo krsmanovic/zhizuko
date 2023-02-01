@@ -1,5 +1,6 @@
 # General
 application_name = "Zhizuko"
+application_fqdn = "gradimozajedno.sadecom.org.rs"
 server_name      = "zhizuko"
 
 # Server specific

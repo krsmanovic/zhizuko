@@ -1,11 +1,12 @@
 resource "hcloud_server" "server" {
-  name        = var.server_name
-  image       = var.server_image
-  server_type = var.server_type
-  location    = var.hcloud_location
-  backups     = var.enable_backups
-  ssh_keys    = [var.ssh_public_key_name]
-  user_data   = var.user_data
+  name         = var.server_name
+  image        = var.server_image
+  server_type  = var.server_type
+  location     = var.hcloud_location
+  backups      = var.enable_backups
+  ssh_keys     = [var.ssh_public_key_name]
+  user_data    = var.user_data
+  firewall_ids = var.firewall_ids
 
   public_net {
     ipv4_enabled = true
