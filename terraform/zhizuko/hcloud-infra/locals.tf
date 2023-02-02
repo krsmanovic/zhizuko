@@ -6,4 +6,6 @@ locals {
     IaC               = "Terraform"
     Organization      = "Uvek-sa-decom"
   }
+
+  umbraco_db_name = "${var.application_name}db"
 }

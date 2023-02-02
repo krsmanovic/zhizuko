@@ -41,4 +41,10 @@ resource "hcloud_primary_ip" "primary_ip" {
   datacenter    = var.hcloud_datacenter
   auto_delete   = false
   labels        = merge(var.generic_labels, local.module_labels)
+
+  lifecycle {
+    ignore_changes = [
+      labels["CreationTimestamp"],
+    ]
+  }
 }

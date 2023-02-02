@@ -1,7 +1,8 @@
 # General
-application_name = "Zhizuko"
-application_fqdn = "gradimozajedno.sadecom.org.rs"
-server_name      = "zhizuko"
+application_name   = "zhizuko"
+application_fqdn   = "gradimozajedno.sadecom.org.rs"
+server_name        = "zhizuko"
+cert_contact_email = "contact@krsmanovic.me"
 
 # Server specific
 hcloud_location   = "nbg1"         # Nuremberg
@@ -15,3 +16,7 @@ app_specific_labels = {
   Platform = "DotNet7"
   Software = "Umbraco"
 }
+
+# Umbraco
+umbraco_friendly_name = "Žizuko"
+umbraco_email         = "contact@krsmanovic.me"
