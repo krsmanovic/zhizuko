@@ -2,7 +2,7 @@ module "zhizuko_network" {
   source               = "../../modules/hcloud-network"
   private_network_name = var.server_name
   floating_ip_name     = var.server_name
-  generic_labels       = merge(local.labels, var.app_specific_labels)
+  generic_labels       = local.labels
 }
 
 module "zhizuko_server" {
@@ -14,7 +14,7 @@ module "zhizuko_server" {
   firewall_ids        = [hcloud_firewall.zhizuko.id]
   ssh_public_key_name = var.ssh_key_name
   user_data           = data.template_file.zhizuko_user_data.rendered
-  generic_labels      = merge(local.labels, var.app_specific_labels)
+  generic_labels      = local.labels
 }
 
 resource "hcloud_firewall" "zhizuko" {

@@ -37,3 +37,6 @@ override.tf.json
 
 # Ignore draw.io files
 *.drawio
+
+# Ignore artifacts
+**/artifacts/*

@@ -65,21 +65,9 @@ variable "app_specific_labels" {
   default     = {}
 }
 
-variable "umbraco_friendly_name" {
+variable "umbraco_user_name" {
   type        = string
   description = "Umbraco user name written in friendly format, e.g., \"A.N. Other\""
   default     = "A.N. Other"
-}
-
-variable "umbraco_email" {
-  type        = string
-  description = "Umbraco user email address"
-  default     = "A.N@other.com"
-}
-
-variable "cert_contact_email" {
-  type        = string
-  description = "SSL certifcate contact email address"
-  default     = "A.N@other.com"
 }
 

@@ -10,30 +10,26 @@ package_update: true
 package_upgrade: true
 package_reboot_if_required: false
 
-# Disable password authentication for root user
+# disable password authentication for root user
 ssh_pwauth: false
 
-# Install required packages
+# install required packages
 packages:
-  - git
   - apt-transport-https
   - ca-certificates
+  - certbot
   - curl
   - dos2unix
+  - git
   - gnupg-agent
-  - software-properties-common
   - jq
   - net-tools
-  - certbot
   - python3-certbot-nginx
+  - software-properties-common
+  - tree
+  - zip
 
-# ansible:
-#   install_method: pip
-#   pull:
-#     url: "https://github.com/krsmanovic/zhizuko.git"
-#     playbook_name: hook.yml
-
-# Save rendered MSSQL installation script, nginx config and systemd unit file
+# rendered files
 write_files:
 - encoding: b64
   path: /tmp/mssql-install.sh
@@ -48,43 +44,55 @@ write_files:
 - encoding: b64
   path: /tmp/db-setup.sql
   content: ${sql_sequence}
+- encoding: b64
+  path: /tmp/appsettings.json
+  content: ${appsettings}
 
+# execute commands on the first boot
 runcmd:
   - ufw allow OpenSSH
   - ufw allow "Nginx Full"
   - ufw --force enable
+  - echo 'alias ll="ls -lah"' >> ~/.bashrc
   - hostnamectl set-hostname ${server_name}
-  # .NET 7
+  # sshd
+  - sed 's/#ClientAliveInterval 0/ClientAliveInterval 60/' -i /etc/ssh/sshd_config
+  - sed 's/#ClientAliveCountMax 3/ClientAliveCountMax 3/' -i /etc/ssh/sshd_config
+  - systemctl restart sshd.service
+  # dotnet 6
   - wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
   - dpkg -i packages-microsoft-prod.deb
   - rm packages-microsoft-prod.deb
   - apt update -y
-  - apt install -y aspnetcore-runtime-7.0
-  - apt install -y dotnet-sdk-7.0
-  # MSSQL
+  - apt install -y dotnet-sdk-6.0
+  # mssql
   - dos2unix /tmp/mssql-install.sh # make sure we are not using CR LF (Windows) control characters
   - /tmp/mssql-install.sh
-  # Setup database
+  # restore db from backup
+  # - wget -O /tmp/db.zip https://zhizuko-artifacts.s3.eu-central-1.amazonaws.com/GradimoZajedno-20230202T100418Z-001.zip
+  # - unzip /tmp/db.zip
   - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "${mssql_sa_password}" -i /tmp/db-setup.sql -o /var/opt/mssql/log/cloud-init-db-setup.log -e
-  # Build project
+  #- sqlcmd -S zhizuko -U SA -P "${mssql_sa_password}" -Q "RESTORE DATABASE [${umbraco_db_name}] FROM DISK='/tmp/GradimoZajedno/${umbraco_db_name}.bak' WITH MOVE '${umbraco_db_name}' TO '/var/opt/mssql/data/${umbraco_db_name}.mdf', MOVE '${umbraco_db_name}_log' TO '/var/opt/mssql/data/${umbraco_db_name}_log.ldf'"
+  # umbraco unattended install
+  # - dotnet new install Umbraco.Templates
+  # - dotnet new umbraco -n ${project_name} --friendly-name "${umbraco_user_name}" --email "${umbraco_email}" --password "${umbraco_password}" --connection-string "Server=localhost;Database=${umbraco_db_name};;User ID=zhizuko;Password=${mssql_sa_password}" --version 10.4.0
+  # # build project
   - mkdir /code
   - cd /code
   - git clone https://github.com/vegaitsourcing/website-gradimo-zajedno.git
+  - cp /tmp/appsettings.json /code/website-gradimo-zajedno/GradimoZajedno.Web/appsettings.json
   - cd /code/website-gradimo-zajedno/GradimoZajedno.Web
   - echo 'export DOTNET_CLI_HOME=/tmp' >> ~/.bashrc
   - DOTNET_CLI_HOME=/tmp dotnet publish --configuration Release --self-contained --runtime linux-x64
   - chown -R zhizuko:zhizuko /code
-  # Nginx
+  # nginx
   - rm -rf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
   - ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
   - systemctl restart nginx
-  # Certbot
-  - certbot --nginx -d ${domain} -d www.${domain} --non-interactive --agree-tos -m ${cert_contact_email} --redirect
-  # Zhizuko systemd unit
+  # certbot
+  - certbot --nginx -d ${domain} --non-interactive --agree-tos -m ${cert_contact_email} --redirect
+  # zhizuko systemd unit
   - systemctl start ${server_name}.service
   - systemctl enable ${server_name}.service
-  # Umbraco unattended install
-  # - dotnet new install Umbraco.Templates
-  # - dotnet new umbraco -n ${server_name} --friendly-name "${umbraco_friendly_name}" --email "${umbraco_email}" --password "${umbraco_password}" --connection-string "Server=(local)\SQLEXPRESS;Database=${umbraco_db_name};;User ID=zhizuko;Password=${mssql_sa_password}" --version 10.0.0
 
 final_message: "The system is finally up, after $UPTIME seconds"
