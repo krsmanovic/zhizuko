@@ -1,9 +1,9 @@
 [Unit]
-Description=Zhizuko web service
+Description=Zhizuko dotnet service
 
 [Service]
-WorkingDirectory=/code/website-gradimo-zajedno
-ExecStart=/usr/bin/dotnet /code/website-gradimo-zajedno/GradimoZajedno.Web/bin/Release/net6.0/linux-x64/GradimoZajedno.Web.dll
+WorkingDirectory=/code/GradimoZajedno.Web/
+ExecStart=/usr/bin/dotnet /code/GradimoZajedno.Web/bin/Prod/net6.0/GradimoZajedno.Web.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
@@ -12,7 +12,7 @@ SyslogIdentifier=${app}
 User=${app}
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
-Environment=DOTNET_CLI_HOME=/tmp
+Environment=DOTNET_CLI_HOME=/dotnet
 
 [Install]
 WantedBy=multi-user.target

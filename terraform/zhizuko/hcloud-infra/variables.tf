@@ -71,3 +71,9 @@ variable "umbraco_user_name" {
   default     = "A.N. Other"
 }
 
+variable "umbraco_version" {
+  type        = string
+  description = "Umbraco version string"
+  default     = "10.0.0"
+}
+

@@ -10,6 +10,7 @@ module "zhizuko_server" {
   server_image        = var.server_base_image
   server_type         = var.server_type
   server_name         = var.server_name
+  enable_backups      = true
   network_id          = module.zhizuko_network.network_id
   firewall_ids        = [hcloud_firewall.zhizuko.id]
   ssh_public_key_name = var.ssh_key_name

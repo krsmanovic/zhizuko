@@ -10,4 +10,5 @@ server_base_image = "ubuntu-20.04" # MS SQL server is not compatible with Ubuntu
 ssh_key_name      = "ck-win10"
 
 # Umbraco
-umbraco_user_name = "GradimoZajedno"
+umbraco_user_name = "zhizuko"
+umbraco_version   = "10.2.1"

@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 # Source: https://learn.microsoft.com/en-us/sql/linux/sample-unattended-install-ubuntu?view=sql-server-ver16
+# My contribution is merged: https://github.com/MicrosoftDocs/sql-docs/pull/8548
 
 # Password for the SA user (required)
 MSSQL_SA_PASSWORD="${mssql_sa_password}"
@@ -76,8 +77,18 @@ fi
 
 # Optional example of post-installation configuration.
 # Trace flags 1204 and 1222 are for deadlock tracing.
-# echo Setting trace flags...
-# sudo /opt/mssql/bin/mssql-conf traceflag 1204 1222 on
+# Trace flag 3459 disables parallel redo (enables serial redo)
+# Trace flag 7806 enables Dedicated Administrator Connection (DAC)
+echo Setting trace flags...
+sudo /opt/mssql/bin/mssql-conf traceflag 3459 on
+
+# Additional settings
+sudo /opt/mssql/bin/mssql-conf set telemetry.customerfeedback false
+sudo mkdir /var/log/mssql
+chown mssql:mssql /var/log/mssql
+sudo /opt/mssql/bin/mssql-conf set filelocation.defaultlogdir /var/log/mssql
+sudo /opt/mssql/bin/mssql-conf set filelocation.errorlogfile /var/log/mssql/error
+sudo /opt/mssql/bin/mssql-conf set sqlagent.errorlogfile /var/log/mssql/sqlagent
 
 # Restart SQL Server after installing:
 echo Restarting SQL Server...

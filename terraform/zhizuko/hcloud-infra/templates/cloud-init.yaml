@@ -29,32 +29,45 @@ packages:
   - tree
   - zip
 
-# rendered files
+# render files
 write_files:
 - encoding: b64
   path: /tmp/mssql-install.sh
   content: ${mssql_install_script}
   permissions: "0755"
 - encoding: b64
-  path: /etc/nginx/sites-available/${domain}.conf
-  content: ${nginx_config}
-- encoding: b64
-  path: /etc/systemd/system/${server_name}.service
-  content: ${zhizuko_unitfile}
-- encoding: b64
   path: /tmp/db-setup.sql
   content: ${sql_sequence}
 - encoding: b64
   path: /tmp/appsettings.json
   content: ${appsettings}
-
+- encoding: b64
+  path: /etc/nginx/sites-available/${domain}.conf
+  content: ${nginx_config}
+- encoding: b64
+  path: /etc/systemd/system/${server_name}.service
+  content: ${zhizuko_unitfile}
+- path: /tmp/build-project.sh
+  owner: zhizuko:zhizuko
+  permissions: "0755"
+  defer: true
+  content: |
+    /usr/bin/git clone https://github.com/vegaitsourcing/website-gradimo-zajedno.git /code
+    cp /tmp/appsettings.json /code/GradimoZajedno.Web/appsettings.json
+    DOTNET_CLI_HOME=/dotnet dotnet build /code/GradimoZajedno.Web/GradimoZajedno.Web.csproj --configuration Prod /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary
+    DOTNET_CLI_HOME=/dotnet dotnet publish /code/GradimoZajedno.Web/GradimoZajedno.Web.csproj --configuration Prod /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary
 # execute commands on the first boot
 runcmd:
+  - hostnamectl set-hostname ${server_name}
+  # set bash profile for root user
+  - echo "source /root/.profile" >> /root/.bash_profile
+  # setup directories
+  - mkdir /code /dotnet
+  - chown zhizuko:zhizuko /code /dotnet
+  # ufw
   - ufw allow OpenSSH
   - ufw allow "Nginx Full"
   - ufw --force enable
-  - echo 'alias ll="ls -lah"' >> ~/.bashrc
-  - hostnamectl set-hostname ${server_name}
   # sshd
   - sed 's/#ClientAliveInterval 0/ClientAliveInterval 60/' -i /etc/ssh/sshd_config
   - sed 's/#ClientAliveCountMax 3/ClientAliveCountMax 3/' -i /etc/ssh/sshd_config
@@ -65,34 +78,34 @@ runcmd:
   - rm packages-microsoft-prod.deb
   - apt update -y
   - apt install -y dotnet-sdk-6.0
-  # mssql
+  - echo 'export DOTNET_CLI_HOME=/dotnet' >> /root/.bashrc
+  - echo 'export DOTNET_CLI_HOME=/dotnet' >> /home/zhizuko/.bashrc
+  # mssql 2022
   - dos2unix /tmp/mssql-install.sh # make sure we are not using CR LF (Windows) control characters
   - /tmp/mssql-install.sh
-  # restore db from backup
-  # - wget -O /tmp/db.zip https://zhizuko-artifacts.s3.eu-central-1.amazonaws.com/GradimoZajedno-20230202T100418Z-001.zip
-  # - unzip /tmp/db.zip
-  - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "${mssql_sa_password}" -i /tmp/db-setup.sql -o /var/opt/mssql/log/cloud-init-db-setup.log -e
-  #- sqlcmd -S zhizuko -U SA -P "${mssql_sa_password}" -Q "RESTORE DATABASE [${umbraco_db_name}] FROM DISK='/tmp/GradimoZajedno/${umbraco_db_name}.bak' WITH MOVE '${umbraco_db_name}' TO '/var/opt/mssql/data/${umbraco_db_name}.mdf', MOVE '${umbraco_db_name}_log' TO '/var/opt/mssql/data/${umbraco_db_name}_log.ldf'"
-  # umbraco unattended install
-  # - dotnet new install Umbraco.Templates
-  # - dotnet new umbraco -n ${project_name} --friendly-name "${umbraco_user_name}" --email "${umbraco_email}" --password "${umbraco_password}" --connection-string "Server=localhost;Database=${umbraco_db_name};;User ID=zhizuko;Password=${mssql_sa_password}" --version 10.4.0
-  # # build project
-  - mkdir /code
-  - cd /code
-  - git clone https://github.com/vegaitsourcing/website-gradimo-zajedno.git
-  - cp /tmp/appsettings.json /code/website-gradimo-zajedno/GradimoZajedno.Web/appsettings.json
-  - cd /code/website-gradimo-zajedno/GradimoZajedno.Web
-  - echo 'export DOTNET_CLI_HOME=/tmp' >> ~/.bashrc
-  - DOTNET_CLI_HOME=/tmp dotnet publish --configuration Release --self-contained --runtime linux-x64
+  - chmod 644 /lib/systemd/system/mssql-server.service
+  - wget -O /tmp/db.zip https://zhizuko-artifacts.s3.eu-central-1.amazonaws.com/GradimoZajedno-20230202T100418Z-001.zip
+  - unzip /tmp/db.zip -d /tmp
+  - /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${mssql_sa_password}' -i /tmp/db-setup.sql -o /var/log/db-setup.log -e
+  # build project
+  - sudo -u zhizuko /tmp/build-project.sh
   - chown -R zhizuko:zhizuko /code
   # nginx
-  - rm -rf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+  - rm -rf /etc/nginx/sites-{available,enabled}/default
   - ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
   - systemctl restart nginx
-  # certbot
+  # generate website certificate and update nginx configuration automatically
   - certbot --nginx -d ${domain} --non-interactive --agree-tos -m ${cert_contact_email} --redirect
   # zhizuko systemd unit
-  - systemctl start ${server_name}.service
-  - systemctl enable ${server_name}.service
+  - systemctl start ${project_name}.service
+  - systemctl enable ${project_name}.service
 
-final_message: "The system is finally up, after $UPTIME seconds"
+# reboot
+power_state:
+ delay: 2
+ mode: reboot
+ message: Rebooting the system to finalize software installation
+ timeout: 30
+ condition: True
+
+final_message: "*** System setup is complete, after $UPTIME seconds ***"
