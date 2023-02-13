@@ -56,6 +56,7 @@ write_files:
     cp /tmp/appsettings.json /code/GradimoZajedno.Web/appsettings.json
     DOTNET_CLI_HOME=/dotnet dotnet build /code/GradimoZajedno.Web/GradimoZajedno.Web.csproj --configuration Prod /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary
     DOTNET_CLI_HOME=/dotnet dotnet publish /code/GradimoZajedno.Web/GradimoZajedno.Web.csproj --configuration Prod /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary
+
 # execute commands on the first boot
 runcmd:
   - hostnamectl set-hostname ${server_name}

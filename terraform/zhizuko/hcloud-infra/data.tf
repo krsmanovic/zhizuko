@@ -17,8 +17,7 @@ data "template_file" "zhizuko_user_data" {
     umbraco_db_name   = local.umbraco_db_name
     umbraco_version   = var.umbraco_version
     # Render files
-    appsettings = base64encode(data.template_file.umbraco_appsettings.rendered)
-    # appsettings_dev      = base64encode(data.template_file.umbraco_appsettings_development.rendered)
+    appsettings          = base64encode(data.template_file.umbraco_appsettings.rendered)
     nginx_config         = base64encode(data.template_file.nginx_conf.rendered)
     zhizuko_unitfile     = base64encode(data.template_file.zhizuko_systemd_unitfile.rendered)
     mssql_install_script = base64encode(data.template_file.mssql_install_script.rendered)
