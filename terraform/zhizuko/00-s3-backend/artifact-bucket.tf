@@ -66,8 +66,13 @@ data "aws_iam_policy_document" "allow_zhizuko_server" {
       test     = "IpAddress"
       variable = "aws:SourceIp"
       values = [
-        "${var.zhizuko_server_public_ip}"
+        "${data.aws_ssm_parameter.server_public_ip.value}"
       ]
     }
   }
+}
+
+data "aws_ssm_parameter" "server_public_ip" {
+  name            = "/uvek-sa-decom/hcloud/server/ip"
+  with_decryption = true
 }
