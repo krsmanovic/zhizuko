@@ -1,5 +1,7 @@
 # Infrastructure code for Žizuko website
 
+> **_NOTE:_**  This repository was archived on 11th August 2024. The site was migrated to Wordpress and hosting moved to [Unlimited.rs](https://unlimited.rs/).
+
 This is IaC for the website [gradimozajedno.sadecom.org.rs](https://gradimozajedno.sadecom.org.rs).
 
 Terraform state file and state lock table are hosted in AWS, while server is hosted in Hetzner Cloud.
